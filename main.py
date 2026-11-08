@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import redis
 import os
-
+from llm_client import call_llm
 app = FastAPI()
 
 
@@ -54,7 +54,8 @@ def ask(question : str):
     if checking is not None:
         output = {"source" : "cache","answer" : checking}
     else: 
-        answer = f"the answer to the question: {question}"
+        answer = call_llm(question)
         redis_client.set(dynamic_key , answer ,ex=60)
         output = {"source" : "generated","answer" : answer }
     return output
+

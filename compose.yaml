@@ -8,11 +8,20 @@ services:
     environment:
           - REDIS_HOST=redis
           - REDIS_PORT=6379 
+    depends_on:
+      redis:
+        condition: service_healthy 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   redis:
     image: redis:7-alpine
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
-
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 volumes:
   redis_data:
