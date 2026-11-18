@@ -59,3 +59,9 @@ def ask(question : str):
         output = {"source" : "generated","answer" : answer }
     return output
 
+
+
+@app.get("/debug-test")
+def debug_test():
+    result = 10 / 4
+    return {"result": result}
