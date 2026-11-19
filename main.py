@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import redis
 import os
 from llm_client import call_llm
+import time
 app = FastAPI()
 
 
@@ -49,15 +50,22 @@ def cache_demo():
 
 @app.get("/ask")
 def ask(question : str):
+    start = time.perf_counter()
     dynamic_key = f"{question}:redis_key"
     checking = redis_client.get(dynamic_key)
     if checking is not None:
-        output = {"source" : "cache","answer" : checking}
+        output = {"source" : "cache","answer" : checking}   
+        end = time.perf_counter()
+        elapsed_time_ms = round((end - start) * 1000, 2)
+        output_with_time = {"source" : "cache","answer" : checking, "elapsed_time": elapsed_time_ms}
     else: 
         answer = call_llm(question)
         redis_client.set(dynamic_key , answer ,ex=60)
         output = {"source" : "generated","answer" : answer }
-    return output
+        end = time.perf_counter()
+        elapsed_time_ms = round((end - start) * 1000, 2)
+        output_with_time = {"source" : "generated","answer" : answer, "elapsed_time": elapsed_time_ms}
+    return output_with_time
 
 
 

@@ -13,5 +13,6 @@ def call_llm(question: str) -> str:
         ]
     }         # same dict you used in Postman, with question as the user message
     response = requests.post(LLM_URL, json=body, timeout=60)
+    response.raise_for_status()
     data = response.json()
     return data["choices"][0]["message"]["content"]           # the reply text, found inside data
